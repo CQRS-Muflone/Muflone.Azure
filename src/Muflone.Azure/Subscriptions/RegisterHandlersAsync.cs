@@ -54,7 +54,7 @@ public class RegisterHandlersAsync : IRegisterHandlersAsync
     {
         try
         {
-            var domainEventProcessor = _domainEventProcessorFactory.CreatedomainEventEventProcessorAsync<T>();
+            var domainEventProcessor = _domainEventProcessorFactory.CreateDomainEventEventProcessorAsync<T>();
             domainEventProcessor.MufloneExceptionHandler += MufloneExceptionHandler;
             domainEventProcessor.RegisterBroker();
         }
