@@ -5,6 +5,6 @@ namespace Muflone.Azure.EventGrid;
 
 public interface IIoTMapper
 {
-    Message MapToAthena(EventGridEvent azureMessage);
-    EventGridEvent MapToAzure(Message athenaMessage);
+	Message MapToAthena(EventGridEvent azureMessage);
+	EventGridEvent MapToAzure(Message athenaMessage);
 }

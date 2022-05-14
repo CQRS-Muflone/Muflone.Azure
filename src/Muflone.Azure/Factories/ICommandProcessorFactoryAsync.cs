@@ -4,5 +4,5 @@ namespace Muflone.Azure.Factories;
 
 public interface ICommandProcessorFactoryAsync
 {
-    ICommandProcessorAsync<T> CreateCommandProcessorAsync<T>() where T : class, ICommand;
+	ICommandProcessorAsync<T> CreateCommandProcessorAsync<T>() where T : class, ICommand;
 }

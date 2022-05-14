@@ -8,15 +8,16 @@ using Muflone.Messages.Commands;
 namespace Muflone.Azure.Factories;
 
 public interface ICommandProcessorAsync
-{ }
+{
+}
 
 public interface ICommandProcessorAsync<in T> where T : ICommand
 {
-    event EventHandler<MufloneExceptionArgs> MufloneExceptionHandler;
+	event EventHandler<MufloneExceptionArgs> MufloneExceptionHandler;
 
-    void RegisterBroker();
+	void RegisterBroker();
 
-    Task HandleAsync(Message message, CancellationToken cancellationToken = default);
+	Task HandleAsync(Message message, CancellationToken cancellationToken = default);
 
-    Task SendAsync(T command, CancellationToken cancellationToken = default);
+	Task SendAsync(T command, CancellationToken cancellationToken = default);
 }

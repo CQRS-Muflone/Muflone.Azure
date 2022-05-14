@@ -10,33 +10,34 @@ namespace Muflone.Azure.IotHub;
 
 public class EventMessageHandlerAsync<T> where T : class, IDomainEvent
 {
-    public int MaxBatchSize { get; set; }
+	private readonly IDomainEventHandlerAsync<T> _eventHandlerAsync;
+	private readonly IIoTMapper _ioTMapper;
 
-    private readonly IMessageMapper<T> _messageMapper;
-    private readonly IIoTMapper _ioTMapper;
-    private readonly IDomainEventHandlerAsync<T> _eventHandlerAsync;
+	private readonly IMessageMapper<T> _messageMapper;
 
-    internal EventMessageHandlerAsync(IDomainEventHandlerAsync<T> eventHandlerAsync,
-        IMessageMapper<T> messageMapper, IIoTMapper ioTMapper)
-    {
-        _eventHandlerAsync = eventHandlerAsync;
-        _messageMapper = messageMapper;
-        _ioTMapper = ioTMapper;
-    }
+	internal EventMessageHandlerAsync(IDomainEventHandlerAsync<T> eventHandlerAsync,
+		IMessageMapper<T> messageMapper, IIoTMapper ioTMapper)
+	{
+		_eventHandlerAsync = eventHandlerAsync;
+		_messageMapper = messageMapper;
+		_ioTMapper = ioTMapper;
+	}
 
-    public async Task ProcessEventsAsync(IEnumerable<EventData> events)
-    {
-        foreach (var @event in events)
-        {
-            var eventArray = @event.Body.ToArray();
-            if (eventArray.Length.Equals(0))
-                continue;
+	public int MaxBatchSize { get; set; }
 
-            var domainEvent = _messageMapper != null
-                ? _messageMapper.MapToRequest(_ioTMapper.MapToAthena(@event))
-                : JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(_ioTMapper.MapToAthena(@event).Body.Bytes));
+	public async Task ProcessEventsAsync(IEnumerable<EventData> events)
+	{
+		foreach (var @event in events)
+		{
+			var eventArray = @event.Body.ToArray();
+			if (eventArray.Length.Equals(0))
+				continue;
 
-            await _eventHandlerAsync.HandleAsync(domainEvent);
-        }
-    }
+			var domainEvent = _messageMapper != null
+				? _messageMapper.MapToRequest(_ioTMapper.MapToAthena(@event))
+				: JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(_ioTMapper.MapToAthena(@event).Body.Bytes));
+
+			await _eventHandlerAsync.HandleAsync(domainEvent);
+		}
+	}
 }
