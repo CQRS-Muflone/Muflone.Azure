@@ -6,15 +6,15 @@ namespace Muflone.Azure.Factories;
 
 public class EventGridEventProcessorFactory<T> where T : class, IDomainEvent
 {
-    public readonly IDomainEventProcessorAsync<T> DomainEventProcessorAsync;
+	public readonly IDomainEventProcessorAsync<T> DomainEventProcessorAsync;
 
-    public EventGridEventProcessorFactory(BrokerOptions brokerOptions,
-        IMessageMapperFactory messageMapperFactory)
-    {
-        var messageMapper = messageMapperFactory.CreateMessageMapper<T>();
+	public EventGridEventProcessorFactory(BrokerOptions brokerOptions,
+		IMessageMapperFactory messageMapperFactory)
+	{
+		var messageMapper = messageMapperFactory.CreateMessageMapper<T>();
 
-        DomainEventProcessorAsync = messageMapper != null
-            ? new AzureDomainEventProcessorAsync<T>(brokerOptions, messageMapper)
-            : new AzureDomainEventProcessorAsync<T>(brokerOptions);
-    }
+		DomainEventProcessorAsync = messageMapper != null
+			? new AzureDomainEventProcessorAsync<T>(brokerOptions, messageMapper)
+			: new AzureDomainEventProcessorAsync<T>(brokerOptions);
+	}
 }

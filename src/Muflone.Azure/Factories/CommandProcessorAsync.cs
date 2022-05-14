@@ -9,58 +9,60 @@ namespace Muflone.Azure.Factories;
 
 public class CommandProcessorAsync<T> : ICommandProcessorAsync<T> where T : class, ICommand
 {
-    public event EventHandler<MufloneExceptionArgs> MufloneExceptionHandler;
+	private readonly BrokerOptions _brokerOptions;
+	private readonly ICommandHandlerAsync<T> _commandHandlerAsync;
+	private readonly IMessageMapper<T> _messageMapper;
 
-    private readonly BrokerOptions _brokerOptions;
-    private readonly IMessageMapper<T> _messageMapper;
-    private readonly ICommandHandlerAsync<T> _commandHandlerAsync;
+	internal CommandProcessorAsync(BrokerOptions brokerOptions,
+		IMessageMapper<T> messageMapper,
+		ICommandHandlerAsync<T> commandHandlerAsync)
+	{
+		_brokerOptions = brokerOptions;
 
-    internal CommandProcessorAsync(BrokerOptions brokerOptions,
-        IMessageMapper<T> messageMapper,
-        ICommandHandlerAsync<T> commandHandlerAsync)
-    {
-        _brokerOptions = brokerOptions;
-        
-        _messageMapper = messageMapper;
-        _commandHandlerAsync = commandHandlerAsync;
-    }
+		_messageMapper = messageMapper;
+		_commandHandlerAsync = commandHandlerAsync;
+	}
 
-    internal CommandProcessorAsync(BrokerOptions brokerOptions,
-        IMessageMapper<T> messageMapper)
-    {
-        _brokerOptions = brokerOptions;
-        _messageMapper = messageMapper;
-    }
+	internal CommandProcessorAsync(BrokerOptions brokerOptions,
+		IMessageMapper<T> messageMapper)
+	{
+		_brokerOptions = brokerOptions;
+		_messageMapper = messageMapper;
+	}
 
-    public virtual void RegisterBroker()
-    { }
+	public event EventHandler<MufloneExceptionArgs> MufloneExceptionHandler;
 
-    public virtual async Task HandleAsync(Message message, CancellationToken token = default(CancellationToken))
-    {
-        if (_commandHandlerAsync == null)
-            throw new Exception($"No CommandHandler has found for {typeof(T)}. A CommandHandler must be specified for every Command");
+	public virtual void RegisterBroker()
+	{
+	}
 
-        try
-        {
-            // Map the message
-            var command = _messageMapper.MapToRequest(message);
-            // Process the command
-            await _commandHandlerAsync.HandleAsync(command, token);
-        }
-        catch (Exception ex)
-        {
-            OnExceptionHandler(new MufloneExceptionArgs(ex));
-        }
-    }
+	public virtual async Task HandleAsync(Message message, CancellationToken token = default)
+	{
+		if (_commandHandlerAsync == null)
+			throw new Exception(
+				$"No CommandHandler has found for {typeof(T)}. A CommandHandler must be specified for every Command");
 
-    public virtual Task SendAsync(T command, CancellationToken token = default)
-    {
-        return Task.CompletedTask;
-    }
+		try
+		{
+			// Map the message
+			var command = _messageMapper.MapToRequest(message);
+			// Process the command
+			await _commandHandlerAsync.HandleAsync(command, token);
+		}
+		catch (Exception ex)
+		{
+			OnExceptionHandler(new MufloneExceptionArgs(ex));
+		}
+	}
 
-    protected virtual void OnExceptionHandler(MufloneExceptionArgs e)
-    {
-        var handler = MufloneExceptionHandler;
-        handler?.Invoke(this, e);
-    }
+	public virtual Task SendAsync(T command, CancellationToken token = default)
+	{
+		return Task.CompletedTask;
+	}
+
+	protected virtual void OnExceptionHandler(MufloneExceptionArgs e)
+	{
+		var handler = MufloneExceptionHandler;
+		handler?.Invoke(this, e);
+	}
 }

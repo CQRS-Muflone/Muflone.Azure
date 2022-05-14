@@ -13,9 +13,9 @@ public interface IDomainEventProcessorAsync
 
 public interface IDomainEventProcessorAsync<in T> where T : IDomainEvent
 {
-    event EventHandler<MufloneExceptionArgs> MufloneExceptionHandler;
+	event EventHandler<MufloneExceptionArgs> MufloneExceptionHandler;
 
-    void RegisterBroker();
-    Task HandleAsync(Message message, CancellationToken token = default);
-    Task PublishAsync(T domainEvent, CancellationToken token = default);
+	void RegisterBroker();
+	Task HandleAsync(Message message, CancellationToken token = default);
+	Task PublishAsync(T domainEvent, CancellationToken token = default);
 }

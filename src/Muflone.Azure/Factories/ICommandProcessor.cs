@@ -5,14 +5,15 @@ using Muflone.Messages.Commands;
 namespace Muflone.Azure.Factories;
 
 public interface ICommandProcessor
-{ }
+{
+}
 
 public interface ICommandProcessor<in T> where T : ICommand
 {
-    event EventHandler ExceptionHandler;
+	event EventHandler ExceptionHandler;
 
-    void RegisterBroker();
-    void Handle(Message message);
+	void RegisterBroker();
+	void Handle(Message message);
 
-    void Send(T command);
+	void Send(T command);
 }
