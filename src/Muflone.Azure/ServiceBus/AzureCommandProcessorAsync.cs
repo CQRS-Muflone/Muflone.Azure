@@ -38,7 +38,6 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
 		var serviceBusClient = new ServiceBusClient(azureQueueOptions.PrimaryConnectionString);
 		_serviceBusProcessor =
 			serviceBusClient.CreateProcessor(azureQueueOptions.QueueName);
-		_serviceBusProcessor.ProcessMessageAsync += MessageProcessorHandler;
 		_serviceBusProcessor.ProcessErrorAsync += ProcessErrorAsync;
 
 		_serviceBusSender = serviceBusClient.CreateSender(azureQueueOptions.QueueName);
@@ -59,7 +58,6 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
 		var serviceBusClient = new ServiceBusClient(azureQueueOptions.PrimaryConnectionString);
 		_serviceBusProcessor =
 			serviceBusClient.CreateProcessor(azureQueueOptions.QueueName);
-		_serviceBusProcessor.ProcessMessageAsync += MessageProcessorHandler;
 		_serviceBusProcessor.ProcessErrorAsync += ProcessErrorAsync;
 
 		_serviceBusSender = serviceBusClient.CreateSender(azureQueueOptions.QueueName);
@@ -80,7 +78,6 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
 		var serviceBusClient = new ServiceBusClient(azureQueueOptions.PrimaryConnectionString);
 		_serviceBusProcessor =
 			serviceBusClient.CreateProcessor(azureQueueOptions.QueueName);
-		_serviceBusProcessor.ProcessMessageAsync += MessageProcessorHandler;
 		_serviceBusProcessor.ProcessErrorAsync += ProcessErrorAsync;
 
 		_serviceBusSender = serviceBusClient.CreateSender(azureQueueOptions.QueueName);
@@ -98,7 +95,6 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
 		var serviceBusClient = new ServiceBusClient(azureQueueOptions.PrimaryConnectionString);
 		_serviceBusProcessor =
 			serviceBusClient.CreateProcessor(azureQueueOptions.QueueName);
-		_serviceBusProcessor.ProcessMessageAsync += MessageProcessorHandler;
 		_serviceBusProcessor.ProcessErrorAsync += ProcessErrorAsync;
 
 		_serviceBusSender = serviceBusClient.CreateSender(azureQueueOptions.QueueName);
@@ -139,38 +135,9 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
         return Task.CompletedTask;
     }
 
-    public void RegisterBroker()
-    {
-        if (_commandHandlerAsync == null)
-            throw new Exception($"No CommandHandler was found for {typeof(T)}. A CommandHandler must be specified for every Command");
-
-        StartProcessingAsync().GetAwaiter().GetResult();
-    }
-
     private async Task StartProcessingAsync()
     {
         await _serviceBusProcessor.StartProcessingAsync().ConfigureAwait(false);
-    }
-
-    public async Task HandleAsync(Message message, CancellationToken cancellationToken = new())
-    {
-        if (cancellationToken.IsCancellationRequested)
-            cancellationToken.ThrowIfCancellationRequested();
-
-        try
-        {
-            // Map the message
-            var command = _messageMapper != null
-                ? _messageMapper.MapToRequest(message)
-                : JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(message.Body.Bytes));
-                
-            // Process the command
-            await _commandHandlerAsync.HandleAsync(command, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            OnException(new MufloneExceptionArgs(ex));
-        }
     }
 
     public async Task HandleAsync(ProcessMessageEventArgs args, CancellationToken cancellationToken = new())
