@@ -4,5 +4,5 @@ namespace Muflone.Azure.Factories;
 
 public interface IDomainEventProcessorFactoryAsync
 {
-    IDomainEventProcessorAsync<T> CreateDomainEventEventProcessorAsync<T>() where T : class, IDomainEvent;
+	IDomainEventProcessorAsync<T> CreateDomainEventEventProcessorAsync<T>() where T : class, IDomainEvent;
 }

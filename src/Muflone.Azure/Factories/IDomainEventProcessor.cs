@@ -10,9 +10,9 @@ public interface IDomainEventProcessor
 
 public interface IDomainEventProcessor<in T> where T : IDomainEvent
 {
-    event EventHandler ExceptionHandler;
+	event EventHandler ExceptionHandler;
 
-    void RegisterBroker();
-    void Handle(Message message);
-    void Publish(T domainEvent);
+	void RegisterBroker();
+	void Handle(Message message);
+	void Publish(T domainEvent);
 }
