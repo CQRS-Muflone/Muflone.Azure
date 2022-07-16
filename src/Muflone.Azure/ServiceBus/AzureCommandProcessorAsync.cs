@@ -126,7 +126,7 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
     public void RegisterBroker()
     {
         if (_commandHandlerAsync == null)
-            throw new Exception($"No CommandHandler has found for {typeof(T)}. A CommandHandler must be specified for every Command");
+            throw new Exception($"No CommandHandler was found for {typeof(T)}. A CommandHandler must be specified for every Command");
 
         StartProcessingAsync().GetAwaiter().GetResult();
     }
@@ -136,8 +136,11 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
         await _serviceBusProcessor.StartProcessingAsync().ConfigureAwait(false);
     }
 
-    public async Task HandleAsync(Message message, CancellationToken cancellationToken = new CancellationToken())
+    public async Task HandleAsync(Message message, CancellationToken cancellationToken = new())
     {
+        if (cancellationToken.IsCancellationRequested)
+            cancellationToken.ThrowIfCancellationRequested();
+
         try
         {
             // Map the message
@@ -154,7 +157,7 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
         }
     }
 
-    public async Task HandleAsync(ProcessMessageEventArgs args, CancellationToken cancellationToken = new CancellationToken())
+    public async Task HandleAsync(ProcessMessageEventArgs args, CancellationToken cancellationToken = new())
     {
         if (cancellationToken.IsCancellationRequested)
             cancellationToken.ThrowIfCancellationRequested();
@@ -192,8 +195,11 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
         }
     }
 
-    public async Task SendAsync(T command, CancellationToken cancellationToken = new CancellationToken())
+    public async Task SendAsync(T command, CancellationToken cancellationToken = new())
     {
+        if (cancellationToken.IsCancellationRequested)
+            cancellationToken.ThrowIfCancellationRequested();
+
         try
         {
             await _serviceBusSender.SendMessageAsync(MapAthenaMessageToServiceBusMessage(command),
