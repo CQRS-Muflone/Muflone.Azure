@@ -38,7 +38,6 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
 		var serviceBusClient = new ServiceBusClient(azureQueueOptions.PrimaryConnectionString);
 		_serviceBusProcessor =
 			serviceBusClient.CreateProcessor(azureQueueOptions.QueueName);
-		_serviceBusProcessor.ProcessMessageAsync += MessageProcessorHandler;
 		_serviceBusProcessor.ProcessErrorAsync += ProcessErrorAsync;
 
 		_serviceBusSender = serviceBusClient.CreateSender(azureQueueOptions.QueueName);
@@ -59,7 +58,6 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
 		var serviceBusClient = new ServiceBusClient(azureQueueOptions.PrimaryConnectionString);
 		_serviceBusProcessor =
 			serviceBusClient.CreateProcessor(azureQueueOptions.QueueName);
-		_serviceBusProcessor.ProcessMessageAsync += MessageProcessorHandler;
 		_serviceBusProcessor.ProcessErrorAsync += ProcessErrorAsync;
 
 		_serviceBusSender = serviceBusClient.CreateSender(azureQueueOptions.QueueName);
@@ -80,7 +78,6 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
 		var serviceBusClient = new ServiceBusClient(azureQueueOptions.PrimaryConnectionString);
 		_serviceBusProcessor =
 			serviceBusClient.CreateProcessor(azureQueueOptions.QueueName);
-		_serviceBusProcessor.ProcessMessageAsync += MessageProcessorHandler;
 		_serviceBusProcessor.ProcessErrorAsync += ProcessErrorAsync;
 
 		_serviceBusSender = serviceBusClient.CreateSender(azureQueueOptions.QueueName);
@@ -98,7 +95,6 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
 		var serviceBusClient = new ServiceBusClient(azureQueueOptions.PrimaryConnectionString);
 		_serviceBusProcessor =
 			serviceBusClient.CreateProcessor(azureQueueOptions.QueueName);
-		_serviceBusProcessor.ProcessMessageAsync += MessageProcessorHandler;
 		_serviceBusProcessor.ProcessErrorAsync += ProcessErrorAsync;
 
 		_serviceBusSender = serviceBusClient.CreateSender(azureQueueOptions.QueueName);
@@ -133,46 +129,21 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
 		}
 	}
 
-	public async Task SendAsync(T command, CancellationToken cancellationToken = new())
-	{
-		try
-		{
-			await _serviceBusSender.SendMessageAsync(MapAthenaMessageToServiceBusMessage(command),
-				cancellationToken);
-		}
-		catch (Exception ex)
-		{
-			OnException(new MufloneExceptionArgs(ex));
-		}
-	}
+    private Task ProcessErrorAsync(ProcessErrorEventArgs arg)
+    {
+        OnException(new MufloneExceptionArgs(arg.Exception));
+        return Task.CompletedTask;
+    }
 
-	private async Task MessageProcessorHandler(ProcessMessageEventArgs args)
-	{
-		try
-		{
-			await ConsumeMessagesAsync(args);
-		}
-		catch (Exception ex)
-		{
-			OnException(new MufloneExceptionArgs(ex));
-		}
-	}
+    private async Task StartProcessingAsync()
+    {
+        await _serviceBusProcessor.StartProcessingAsync().ConfigureAwait(false);
+    }
 
-	private Task ProcessErrorAsync(ProcessErrorEventArgs arg)
-	{
-		OnException(new MufloneExceptionArgs(arg.Exception));
-		return Task.CompletedTask;
-	}
-
-	private async Task StartProcessingAsync()
-	{
-		await _serviceBusProcessor.StartProcessingAsync().ConfigureAwait(false);
-	}
-
-	public async Task HandleAsync(ProcessMessageEventArgs args, CancellationToken cancellationToken = new())
-	{
-		if (cancellationToken.IsCancellationRequested)
-			cancellationToken.ThrowIfCancellationRequested();
+    public async Task HandleAsync(ProcessMessageEventArgs args, CancellationToken cancellationToken = new())
+    {
+        if (cancellationToken.IsCancellationRequested)
+            cancellationToken.ThrowIfCancellationRequested();
 
 		try
 		{
@@ -207,15 +178,30 @@ public class AzureCommandProcessorAsync<T> : ICommandProcessorAsync<T> where T :
 		}
 	}
 
-	#region Helpers
+    public async Task SendAsync(T command, CancellationToken cancellationToken = new())
+    {
+        if (cancellationToken.IsCancellationRequested)
+            cancellationToken.ThrowIfCancellationRequested();
 
-	// Note: Use the cancellationToken passed as necessary to determine if the subscriptionClient has already been closed.
-	// If subscriptionClient has already been Closed, you may chose to not call CompleteAsync() or AbandonAsync() etc. calls 
-	// to avoid unnecessary exceptions.
-	private async Task ConsumeMessagesAsync(ProcessMessageEventArgs args, CancellationToken cancellationToken = default)
-	{
-		if (cancellationToken.IsCancellationRequested)
-			cancellationToken.ThrowIfCancellationRequested();
+        try
+        {
+            await _serviceBusSender.SendMessageAsync(MapAthenaMessageToServiceBusMessage(command),
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            OnException(new MufloneExceptionArgs(ex));
+        }
+    }
+
+    #region Helpers
+    // Note: Use the cancellationToken passed as necessary to determine if the subscriptionClient has already been closed.
+    // If subscriptionClient has already been Closed, you may chose to not call CompleteAsync() or AbandonAsync() etc. calls 
+    // to avoid unnecessary exceptions.
+    private async Task ConsumeMessagesAsync(ProcessMessageEventArgs args, CancellationToken cancellationToken = default)
+    {
+        if (cancellationToken.IsCancellationRequested)
+            cancellationToken.ThrowIfCancellationRequested();
 
 		try
 		{

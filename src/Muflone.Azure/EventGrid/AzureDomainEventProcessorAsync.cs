@@ -24,23 +24,21 @@ public class AzureDomainEventProcessorAsync<T> : IDomainEventProcessorAsync<T> w
 	{
 		_messageMapper = messageMapper;
 
-		if (!string.IsNullOrEmpty(brokerOptions.TopicName))
-		{
-			var azureKeyCredentials = new AzureKeyCredential(brokerOptions.SubscriptionName ?? string.Empty);
-			_eventGridPublisherClient =
-				new EventGridPublisherClient(new Uri(brokerOptions.ConnectionString), azureKeyCredentials);
-		}
-	}
+        if (string.IsNullOrEmpty(brokerOptions.TopicName)) return;
 
-	internal AzureDomainEventProcessorAsync(BrokerOptions brokerOptions)
-	{
-		if (!string.IsNullOrEmpty(brokerOptions.TopicName))
-		{
-			var azureKeyCredentials = new AzureKeyCredential(brokerOptions.SubscriptionName ?? string.Empty);
-			_eventGridPublisherClient =
-				new EventGridPublisherClient(new Uri(brokerOptions.ConnectionString), azureKeyCredentials);
-		}
-	}
+        var azureKeyCredentials = new AzureKeyCredential(brokerOptions.SubscriptionName ?? string.Empty);
+        _eventGridPublisherClient =
+            new EventGridPublisherClient(new Uri(brokerOptions.ConnectionString), azureKeyCredentials);
+    }
+
+    internal AzureDomainEventProcessorAsync(BrokerOptions brokerOptions)
+    {
+        if (string.IsNullOrEmpty(brokerOptions.TopicName)) return;
+
+        var azureKeyCredentials = new AzureKeyCredential(brokerOptions.SubscriptionName ?? string.Empty);
+        _eventGridPublisherClient =
+            new EventGridPublisherClient(new Uri(brokerOptions.ConnectionString), azureKeyCredentials);
+    }
 
 	public event EventHandler<MufloneExceptionArgs> MufloneExceptionHandler;
 
