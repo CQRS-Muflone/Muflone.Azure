@@ -18,7 +18,7 @@ public static class CommandProcessorHelper
             var brokerOptions = new BrokerOptions
             {
                 ConnectionString = connectionString,
-                QueueName = nameof(T).ToLower()
+                QueueName = typeof(T).Name.ToLower()
             };
 
             return commandHandlerFactory is null

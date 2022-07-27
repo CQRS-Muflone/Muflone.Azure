@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>6.0.2</Version>
+    <Version>6.0.5</Version>
 	  <Authors>Alberto Acerbis - Alessandro Colla</Authors>
     <Description>Microsoft Azure support (IoT Hub, Service bus, Event Hubs, Event Grid) and wrappers for Muflone's CommandHandlers and EventHandlers</Description>
     <PackageProjectUrl>https://github.com/CQRS-Muflone/Muflone.Azure</PackageProjectUrl>
@@ -16,14 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.EventGrid" Version="4.10.0" />
-    <PackageReference Include="Azure.Messaging.EventHubs" Version="5.7.0" />
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.8.0" />
+    <PackageReference Include="Azure.Messaging.EventGrid" Version="4.11.0" />
+    <PackageReference Include="Azure.Messaging.EventHubs" Version="5.7.1" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.9.0" />
     <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.41.0" />
     <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.38.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="Muflone" Version="6.0.2" />
+    <PackageReference Include="Muflone" Version="6.0.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
