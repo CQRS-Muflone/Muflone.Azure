@@ -18,7 +18,7 @@ public static class DomainEventProcessorHelper
             var brokerOptions = new BrokerOptions
             {
                 ConnectionString = connectionString,
-                TopicName = nameof(T).ToLower(),
+                TopicName = typeof(T).Name.ToLower(),
                 SubscriptionName = subscriptionName
             };
 
